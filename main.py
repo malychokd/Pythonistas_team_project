@@ -1,10 +1,13 @@
+import os
+
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from model.components import predict, read_imagefile
+from model.model_interaction import predict, read_imagefile
 import uvicorn
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from html_response import response
-import os
 
 
 app = FastAPI()
@@ -24,22 +27,20 @@ async def index():
     return FileResponse("static/index.html")
 
 
-@app.post('/predict/image', status_code=200)
+@app.post("/predict/image", status_code=200)
 async def predict_api(file: UploadFile = File(...)):
     """
     The predict_api function is a ReST API that takes an image file as input and returns the predicted class of the image.
-    
-    
+
+
     :param file: UploadFile: Get the uploaded file from the user
     :return: A string that is the predicted class
     """
-    for f in os.scandir('static/upload'):
+    for f in os.scandir("static/upload"):
         os.remove(f.path)
     extension = file.filename.split(".")[-1] in ("jpg", "jpeg", "png")
     if not extension:
-        raise HTTPException(
-            status_code=404, detail="Image could not be downloaded"
-        )
+        raise HTTPException(status_code=404, detail="Image could not be downloaded")
     file_read = await file.read()
     image = read_imagefile(file_read)
     prediction = predict(image)
@@ -47,9 +48,9 @@ async def predict_api(file: UploadFile = File(...)):
     with open(file_path, "wb") as f:
         f.write(file_read)
     pred = response(file.filename, prediction)
-    
+
     return HTMLResponse(content=pred, status_code=200)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
