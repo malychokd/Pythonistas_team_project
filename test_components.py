@@ -27,7 +27,7 @@ def file():
 def test_load_model():
     """
     The test_load_model function tests the load_model function in model/components.py
-        The test_load_model function checks that the result of calling load_model is an instance of keras.engine.sequential.Sequential
+        The test_load_model function checks that the result of calling load_model is an instance of  keras.engine.sequential.Sequential
     
     
     :return: An instance of the sequential class
